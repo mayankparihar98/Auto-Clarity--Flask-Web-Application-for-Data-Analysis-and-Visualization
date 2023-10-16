@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis Results{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analysis Results</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Add your custom CSS styles here -->
+    <link rel="stylesheet" href="custom_styles.css">
+    <!-- Add Bokeh CSS and JS resources -->
+    {{ script | safe }}
+    {{ div | safe }}
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1 class="display-4">Analysis Results</h1>
+            <p class="lead">Dataset Analysis Report</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Add a select menu to choose the section to display -->
+                <h2>Display Options</h2>
+                <select id="displayOption" class="form-control">
+                    <option value="columnDescription">Column Description</option>
+                    <option value="dataShape">Dataset Shape</option>
+                    <option value="dataInfo">Dataset Info</option>
+                    <option value="dataDescribe">Dataset Describe</option>
+                    <option value="missingValues">Missing Values</option>
+                    <option value="missingValuesHeatmap">Missing Values Heatmap</option>
+                </select>
+            </div>
+
+            <div class="card">
+                <form method="POST" action="">
+                    {{ data_selection_form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ data_selection_form.data_selection.label }}
+                        {{ data_selection_form.data_selection(class="form-control") }}
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="clean_all_columns" id="cleanAllColumns">
+                        <label class="form-check-label" for="cleanAllColumns">
+                            Clean All Columns
+                        </label>
+                    </div>
+                    <!-- Stylish "Apply split_and_clean" button -->
+                    <button type="submit" class="btn btn-primary btn-lg btn-block mt-3">
+                        <i class="fas fa-cogs"></i> Apply split_and_clean
+                    </button>
+                </form>
+                <!-- Stylish "Reset split_and_clean" button -->
+                <form method="POST" action="{{ url_for('reset_split_and_clean', filename=filename) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="fas fa-undo"></i> Reset split_and_clean
+                    </button>
+                </form>
+            </div>          
+            
+
+            <div class="col-md-8">
+                <!-- Add placeholders for different sections -->
+                <div id="columnDescription">
+                    <h2>Column Description:</h2>
+                    <pre>{{ column_description }}</pre>
+
+                </div>    
+                
+                <!-- Add a button to download split and cleaned data -->
+                <a href="{{ url_for('download_split_and_clean', filename=filename) }}" class="btn btn-primary mt-3" style="background-color: #007bff; color: #fff; padding: 1rem 5rem; border: none; border-radius: 5px; margin-top: 1rem; cursor: pointer;">Download Split and Cleaned Data</a>
+                
+                <div id="dataShape">
+                    <h2>Data Shape:</h2>
+                    <p>Number of rows: {{ data_shape[0] }}</p>
+                    <p>Number of columns: {{ data_shape[1] }}</p>
+                </div>
+
+                <div id="dataInfo">
+                    <h2>Data Info:</h2>
+                    <pre>{{ data_info }}</pre>
+                </div>                
+
+                <div id="dataDescribe">
+                    <h2>Data Description:</h2>
+                    <pre>{{ data_describe }}</pre>
+                </div>
+
+                <div id="missingValues">
+                    <h2>Missing Values</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Missing Values</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for column, missing_value_count in missing_values.items() %}
+                            <tr>
+                                <td>{{ column }}</td>
+                                <td>{{ missing_value_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                <!-- Add a button to highlight missing value rows -->
+                <button id="highlightMissingRowsBtn" class="btn btn-warning mt-3" style="background-color: #931a28b7; color: #fff; padding: 1rem 5rem; border: none; border-radius: 5px; margin-top: 1rem; cursor: pointer;">Highlight Missing Value Rows</button>
+                <!-- Add a reset button to remove highlights -->
+                <form method="POST" action="{{ url_for('reset_highlighted_rows') }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Reset Highlights Missing Values</button>
+                </form>  
+                                  
+                </div>
+                
+                <!-- Add this div to display the Seaborn heatmap image -->
+                <div id="missingValuesHeatmap">
+                    <h2>Missing Values Heatmap:</h2>
+                    <img src="data:image/png;base64,{{ missing_values_heatmap | b64encode }}" alt="Missing Values Heatmap">
+                    <a href="{{ url_for('download_heatmap', filename=filename) }}" class="btn btn-primary mt-3" style="background-color: #c300ff99; color: #fff; padding: 1rem 5rem; border: none; border-radius: px; margin-top: 1rem; cursor: pointer;">Download Heatmap</a>
+                </div>
+
+                <form>
+                    <a href="{{ url_for('custom_graphs_result') }}" style="background-color: #007bff; color: #fff; padding: 0.5rem 10rem; border: none; border-radius: 5px; margin-top: 1rem; cursor: pointer;">Create Custom Graph</a>
+            </div>
+        </div>
+    </div>
+<!-- Add JavaScript code to handle select menu and show/hide sections -->
+<!-- Add JavaScript code to handle the button click event -->
+<script>
+    document.getElementById('highlightMissingRowsBtn').addEventListener('click', function () {
+        // Highlight missing value rows in the table
+        var table = document.querySelector('table'); // Assuming your table is the first table in the page
+        for (var i = 1; i < table.rows.length; i++) { // Start from the second row
+            var cell = table.rows[i].cells[1]; // Assuming the "Missing Value Count" is in the second column
+            if (parseInt(cell.innerText) > 0) {
+                table.rows[i].style.backgroundColor = 'yellow';
+            }
+        }
+    });
+</script>
+
+<script>
+    document.getElementById('displayOption').addEventListener('change', function () {
+        const selectedOption = this.value;
+        document.getElementById('columnDescription').style.display = 'none';
+        document.getElementById('dataShape').style.display = 'none';
+        document.getElementById('dataInfo').style.display = 'none';
+        document.getElementById('dataDescribe').style.display = 'none';
+        document.getElementById('missingValues').style.display = 'none';
+        document.getElementById('missingValuesHeatmap').style.display = 'none';
+
+        if (selectedOption) {
+            document.getElementById(selectedOption).style.display = 'block';
+
+            // If the selected option is 'Missing Values Heatmap', display the Bokeh plot
+            if (selectedOption === 'missingValuesHeatmap') {
+                // Ensure the correct ID for the heatmap plot div
+                const heatmapDiv = document.getElementById('heatmap_plot');
+
+                // Create a Bokeh plot using the embedded script
+                const script = document.getElementById('missingValuesHeatmapScript').innerHTML;
+                Bokeh.embed.embed_item(JSON.parse(script), heatmapDiv);  // Embed the Bokeh plot
+            }
+        }
+    });
+</script>
+    
+</body>
+</html>
+{% endblock %}

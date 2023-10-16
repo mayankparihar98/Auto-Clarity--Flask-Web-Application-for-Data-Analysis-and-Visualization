@@ -1,0 +1,37 @@
+/* Add custom CSS styles to improve the page's appearance */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.jumbotron {
+    background-color: #111213;
+    color: #fff;
+    text-align: center;
+}
+
+h1 {
+    font-size: 36px;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+/* Style select menu */
+#displayOption {
+    margin-bottom: 20px;
+}
+
+/* Style individual sections */
+#columnDescription, #dataShape, #dataInfo, #dataDescribe, #missingValues, #missingValuesHeatmap {
+    display: none;
+    margin-bottom: 30px;
+}
+
+/* custom_styles.css */
+#missingValuesHeatmap {
+    width: 800px; /* Adjust width as needed */
+    height: 50px; /* Adjust height as needed */
+    margin: 20px auto;
+}
+

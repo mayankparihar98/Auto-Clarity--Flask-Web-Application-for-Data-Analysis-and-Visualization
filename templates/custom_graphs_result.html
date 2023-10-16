@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Custom Graph Result{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Step 1: Add meta and CSS links -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bokeh/3.0.1/bokeh.min.js"
+        integrity="sha512-p7EUyPmeDeOwHiu7fIZNboAcQLxei3sWtXoHoShWWiPNUSRng/Xs5JPcaFPRa4dKy9IuHjyIQuLE4caGCwuewA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Step 2: Add the title -->
+    <title>Custom Graph Result</title>
+    <style>
+        body {
+            padding: 20px;
+            background-color: #fbf8f800;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .jumbotron {
+            background-color: #16d55f;
+            color: #fff;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 20px;
+            padding: 10px 20px;
+        }
+
+        .card-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .reset-button {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <!-- Step 3: Add the title within the jumbotron -->
+            <h1 class="display-4">Custom Graph Result</h1>
+            <p class="lead">Generate and view custom graphs</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Step 4: Add the form for graph options -->
+                <h2>Graph Options</h2>
+                <form method="POST" action="/custom_graphs_result">
+                    {{ form.csrf_token }}
+                    <div class="form-group">
+                        <label for="graph_type">Graph Type:</label>
+                        {{ form.graph_type(class="form-control", id="graph_type") }}
+                    </div>
+                    <div class="form-group">
+                        <label for="x_column">X Axis Data Column:</label>
+                        {{ form.x_column(class="form-control", id="x_column") }}
+                    </div>
+                    <div class="form-group">
+                        <label for="y_column">Y Axis Data Column:</label>
+                        {{ form.y_column(class="form-control", id="y_column") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Plot Graph</button>
+                </form>
+            </div>
+
+            <div class="col-md-8">
+                <!-- Display generated plots here -->
+                {% if generated_plots %}
+                <div class="card">
+                    <div class="card-header">
+                        <!-- Step 5: Display the first generated plot title -->
+                        <h3 class="card-title">Generated Plot: {{ generated_plots[0][0] }} vs {{ generated_plots[0][1] }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Step 6: Display the first generated plot content -->
+                        {{ generated_plots[0][2] | safe }}
+                        {{ generated_plots[0][3] | safe }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Display additional generated plots -->
+                {% for x_column, y_column, plot_div, plot_script in generated_plots[1:] %}
+                <div class="plot-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <!-- Step 7: Display additional generated plot titles -->
+                            <h3 class="card-title">Additional Plot: {{ x_column }} vs {{ y_column }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Step 8: Display additional generated plot content -->
+                            {{ plot_div | safe }}
+                            {{ plot_script | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Display combined plot if available -->
+                {% if combined_plot %}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Combined Plot</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ combined_plot | safe }}
+                    </div>
+                </div>
+                {% endif %}
+
+
+        <div class="reset-button">
+            <form method="post" action="{{ url_for('reset_generated_plots') }}">
+                <!-- Step 11: Add a button to reset generated plots -->
+                <button type="submit" class="btn btn-danger">Reset Generated Plots</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}
