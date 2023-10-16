@@ -15785,3 +15785,9 @@ INFO:werkzeug:127.0.0.1 - - [15/Oct/2023 20:35:51] "[36mGET /static/Upsolve.png
 2023-10-15 20:35:55,113 : ERROR : Exception occurred: generate_combined_plot() takes 3 positional arguments but 4 were given
 ERROR:__main__:Exception occurred: generate_combined_plot() takes 3 positional arguments but 4 were given
 INFO:werkzeug:127.0.0.1 - - [15/Oct/2023 20:35:55] "[35m[1mPOST /custom_graphs_result HTTP/1.1[0m" 500 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:1998
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug: * Restarting with watchdog (windowsapi)
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 824-647-321
